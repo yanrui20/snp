@@ -34,17 +34,17 @@ class SNP:
         data = pd.DataFrame(data=pre_data, columns=header).astype(float)
         data["freq[MHz]"] = data["freq[Hz]"] / 1e6
 
-        names = [f"S{i}{j}" for i in range(1, self.n+1) for j in range(1, self.n+1)]
-        for name in names:
-            data[f"{name}[MODULUS]"] = np.abs(data[f"re:{name}"] + 1j * data[f"im:{name}"])
-            data[f"{name}[DB]"] = 20 * np.log10(data[f"{name}[MODULUS]"])
-            data[f"{name}[VSWR]"] = (1 + data[f"{name}[MODULUS]"]) / (1 - data[f"{name}[MODULUS]"])
+        pairs = [f"S{i}{j}" for i in range(1, self.n+1) for j in range(1, self.n+1)]
+        for pair in pairs:
+            data[f"{pair}[MODULUS]"] = np.abs(data[f"re:{pair}"] + 1j * data[f"im:{pair}"])
+            data[f"{pair}[DB]"] = 20 * np.log10(data[f"{pair}[MODULUS]"])
+            data[f"{pair}[VSWR]"] = (1 + data[f"{pair}[MODULUS]"]) / (1 - data[f"{pair}[MODULUS]"])
         return data
 
     ## name : smith, db, modulus, vswr. Don't worry about upper and lower case.
-    ## lines : Select which port pairs to draw. You can select multiple port pairs, for example ["S11", "S12", "S21"]
+    ## pairs : Select which port pairs to draw. You can select multiple port pairs, for example ["S11", "S12", "S21"]
     ## limitMHZ : [minMHZ, maxMHZ], if maxMHZ > the max freq in the data, it is OK
-    def draw(self, name="DB", lines=["S11"], limitMHZ=[0, 100000]):
+    def draw(self, name, pairs, limitMHZ=[0, 100000]):
         data = self.data.copy()
         data = data[(data["freq[MHz]"] >= limitMHZ[0]) & (data["freq[MHz]"] <= limitMHZ[1])]
         name = name.upper()
@@ -59,20 +59,20 @@ class SNP:
             x = data["freq[MHz]"]
             plt.xlabel("freq[MHZ]")
             plt.ylabel(name)
-        for line in lines:
+        for pair in pairs:
             if name == "SMITH":
-                x = data[f"re:{line}"]
-                y = data[f"im:{line}"]
+                x = data[f"re:{pair}"]
+                y = data[f"im:{pair}"]
             else:
-                y = data[f"{line}[{name}]"]
-            plt.plot(x, y, label=line)
+                y = data[f"{pair}[{name}]"]
+            plt.plot(x, y, label=pair)
         plt.legend()
         # plt.show() ## you can show the picture if you need
-        plt.savefig(f"{self.filename}_{name}_{lines}_{limitMHZ}.png")
+        plt.savefig(f"{self.filename}_{name}_{pairs}_{limitMHZ}.png")
 
 
 if __name__ == "__main__":
     s2p = SNP("BSL1.s2p")
-    s2p.draw(name="smith", lines=["S11"])
-    s2p.draw(name="smith", lines=["S11", "S22"], limitMHZ=[800, 1000])
-    s2p.draw(name="db", lines=["S11", "S12", "S22"], limitMHZ=[800, 1000])
+    s2p.draw(name="smith", pairs=["S11"])
+    s2p.draw(name="smith", pairs=["S11", "S22"], limitMHZ=[800, 1000])
+    s2p.draw(name="db", pairs=["S11", "S12", "S22"], limitMHZ=[800, 1000])
