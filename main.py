@@ -45,8 +45,9 @@ class SNP:
         pairs = [f"S{i}{j}" for i in range(1, self.n+1) for j in range(1, self.n+1)]
         
         for pair in pairs:
-            data[f"re:{pair}"] = pre_data[f"DB{pair}"] * np.cos(pre_data[f"Ang{pair}"])
-            data[f"im:{pair}"] = pre_data[f"DB{pair}"] * np.sin(pre_data[f"Ang{pair}"])
+            angles_rad = np.deg2rad(pre_data[f"Ang{pair}"])
+            data[f"re:{pair}"] = pre_data[f"DB{pair}"] * np.cos(angles_rad)
+            data[f"im:{pair}"] = pre_data[f"DB{pair}"] * np.sin(angles_rad)
 
         return self.expand_MA_data(data)
 
