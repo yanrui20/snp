@@ -32,17 +32,20 @@ class SNP:
         with open(self.filepath, "r") as f:
             lines = f.readlines()
         
-        header = lines[5][1:] + lines[6][1:] + lines[7][1:]
-        header = header.split()
+        n = self.n
+        header_lines = lines[5:5+n]
+        header = ' '.join(line.strip()[1:] for line in header_lines).split()
 
-        lines = lines[8:]
-        pre_data = [(lines[i*3] + lines[i*3+1] + lines[i*3+2]).split() for i in range(len(lines // self.n))]
+        lines = lines[5+n:]
+
+        pre_data = [' '.join(line.strip() for line in lines[i*n : i*(n+1)]).split() for i in range(len(lines // n))]
+
         pre_data = pd.DataFrame(data=pre_data, columns=header).astype(float)
 
-        ## change to MA
+        ## change DB to MA
         data = pd.DataFrame()
         data["freq[MHz]"] = pre_data["Freq"] * 1e3  ## GHz -> MHz
-        pairs = [f"S{i}{j}" for i in range(1, self.n+1) for j in range(1, self.n+1)]
+        pairs = [f"S{i}{j}" for i in range(1, n+1) for j in range(1, n+1)]
         
         for pair in pairs:
             angles_rad = np.deg2rad(pre_data[f"Ang{pair}"])
