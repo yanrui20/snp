@@ -100,8 +100,9 @@ class SNP:
                 y = data[f"im:{pair}"]
             else:
                 y = data[f"{pair}[{name}]"]
-            plt.plot(x, y, label=pair)
+            plt.plot(x, y, label=pair, linewidth=0.5)
         plt.legend()
+        plt.grid(alpha=0.25)
         # plt.show() ## you can show the picture if you need
         plt.savefig(f"{self.filename}_{name}_{pairs}_{limitMHZ}.png")
 
@@ -109,7 +110,7 @@ class SNP:
 if __name__ == "__main__":
     s2p = SNP(filepath="8.s3p", filetype="db", n=3)
     # s2p = SNP(filepath=r"D:\xxx\BSL1.s2p", filetype="db", n=2) ## on windows
-    s2p.draw(name="smith", pairs=["S11"])
-    s2p.draw(name="vswr", pairs=["S11", "S22"])
-    s2p.draw(name="modulus", pairs=["S11", "S22"])
-    s2p.draw(name="db", pairs=["S11", "S12", "S22"], limitMHZ=[800, 1000])
+    # s2p.draw(name="smith", pairs=["S11"])
+    # s2p.draw(name="vswr", pairs=["S11", "S22"])
+    # s2p.draw(name="modulus", pairs=["S11", "S21"])
+    s2p.draw(name="db", pairs=["S21"])
