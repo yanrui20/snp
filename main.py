@@ -23,8 +23,8 @@ class SNP:
     def get_data(self):
         if self.filetype == "DB":
             return self.process_DB_file()
-        elif self.filetype == "MA":
-            return self.process_MA_file()
+        elif self.filetype == "RI":
+            return self.process_RI_file()
         else:
             raise ValueError("Unknown File Type")
     
@@ -42,7 +42,7 @@ class SNP:
 
         pre_data = pd.DataFrame(data=pre_data, columns=header).astype(float)
 
-        ## change DB to MA
+        ## change DB to RI
         data = pd.DataFrame()
         data["freq[MHz]"] = pre_data["Freq"] * 1e3  ## GHz -> MHz
         pairs = [f"S{i}{j}" for i in range(1, n+1) for j in range(1, n+1)]
@@ -52,9 +52,9 @@ class SNP:
             data[f"re:{pair}"] = pre_data[f"DB{pair}"] * np.cos(angles_rad)
             data[f"im:{pair}"] = pre_data[f"DB{pair}"] * np.sin(angles_rad)
 
-        return self.expand_MA_data(data)
+        return self.expand_RI_data(data)
 
-    def process_MA_file(self):
+    def process_RI_file(self):
         with open(self.filepath, "r") as f:
             lines = f.readlines()
 
@@ -67,9 +67,9 @@ class SNP:
         data["freq[MHz]"] = data["freq[Hz]"] / 1e6
         data.drop(columns=["freq[Hz]"])
 
-        return self.expand_MA_data(data)
+        return self.expand_RI_data(data)
     
-    def expand_MA_data(self, data):
+    def expand_RI_data(self, data):
         pairs = [f"S{i}{j}" for i in range(1, self.n+1) for j in range(1, self.n+1)]
         for pair in pairs:
             data[f"{pair}[MODULUS]"] = np.abs(data[f"re:{pair}"] + 1j * data[f"im:{pair}"])
@@ -108,7 +108,7 @@ class SNP:
 
 
 if __name__ == "__main__":
-    s2p = SNP(filepath="BSL1.s2p", filetype="ma", n=2)
+    s2p = SNP(filepath="8.s3p", filetype="db", n=3)
     # s2p = SNP(filepath=r"D:\xxx\BSL1.s2p", filetype="db", n=2) ## on windows
     s2p.draw(name="smith", pairs=["S11"])
     # s2p.draw(name="vswr", pairs=["S11", "S22"], limitMHZ=[800, 1000])
