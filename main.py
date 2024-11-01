@@ -37,9 +37,7 @@ class SNP:
         header = ' '.join(line.strip()[1:] for line in header_lines).split()
 
         lines = lines[5+n:]
-
-        pre_data = [' '.join(line.strip() for line in lines[i*n : i*(n+1)]).split() for i in range(len(lines // n))]
-
+        pre_data = [' '.join(line.strip() for line in lines[i*n : (i+1)*n]).split() for i in range(len(lines) // n)]
         pre_data = pd.DataFrame(data=pre_data, columns=header).astype(float)
 
         ## change DB to RI
