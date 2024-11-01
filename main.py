@@ -47,8 +47,9 @@ class SNP:
         
         for pair in pairs:
             angles_rad = np.deg2rad(pre_data[f"Ang{pair}"])
-            data[f"re:{pair}"] = pre_data[f"DB{pair}"] * np.cos(angles_rad)
-            data[f"im:{pair}"] = pre_data[f"DB{pair}"] * np.sin(angles_rad)
+            s = np.power(10, pre_data[f"DB{pair}"] / 20)
+            data[f"re:{pair}"] = s * np.cos(angles_rad)
+            data[f"im:{pair}"] = s * np.sin(angles_rad)
 
         return self.expand_RI_data(data)
 
@@ -109,6 +110,6 @@ if __name__ == "__main__":
     s2p = SNP(filepath="8.s3p", filetype="db", n=3)
     # s2p = SNP(filepath=r"D:\xxx\BSL1.s2p", filetype="db", n=2) ## on windows
     s2p.draw(name="smith", pairs=["S11"])
-    # s2p.draw(name="vswr", pairs=["S11", "S22"], limitMHZ=[800, 1000])
-    # s2p.draw(name="modulus", pairs=["S11", "S22"], limitMHZ=[800, 1000])
-    # s2p.draw(name="db", pairs=["S11", "S12", "S22"], limitMHZ=[800, 1000])
+    s2p.draw(name="vswr", pairs=["S11", "S22"])
+    s2p.draw(name="modulus", pairs=["S11", "S22"])
+    s2p.draw(name="db", pairs=["S11", "S12", "S22"], limitMHZ=[800, 1000])
