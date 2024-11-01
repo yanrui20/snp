@@ -73,6 +73,7 @@ class SNP:
 
 if __name__ == "__main__":
     s2p = SNP("BSL1.s2p")
+    # s2p = SNP(r"D:\xxx\BSL1.s2p") ## on windows
     s2p.draw(name="smith", pairs=["S11"])
     s2p.draw(name="smith", pairs=["S11", "S22"], limitMHZ=[800, 1000])
     s2p.draw(name="db", pairs=["S11", "S12", "S22"], limitMHZ=[800, 1000])
