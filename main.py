@@ -33,21 +33,23 @@ class SNP:
             lines = f.readlines()
         
         n = self.n
-        header_lines = lines[5:5+n]
+        start_header_line = 4 ## python从0计数，这次新文件是第4行
+        header_lines = lines[start_header_line: start_header_line+n] ## 从start_header_line开始算，之后只用改start_header_line即可
         header = ' '.join(line.strip()[1:] for line in header_lines).split()
 
-        lines = lines[5+n:]
+        lines = lines[start_header_line+n+1:] ## 多出来的一个感叹号的空行需要去除
+        lines = [x for x in lines if x.strip() != ""] ## 去掉全空的行
         pre_data = [' '.join(line.strip() for line in lines[i*n : (i+1)*n]).split() for i in range(len(lines) // n)]
         pre_data = pd.DataFrame(data=pre_data, columns=header).astype(float)
 
         ## change DB to RI
         data = pd.DataFrame()
-        data["freq[MHz]"] = pre_data["Freq"] * 1e3  ## GHz -> MHz
+        data["freq[MHz]"] = pre_data["freq[Hz]"] / 1e6  ## Hz -> MHz ## 之前的8.s3p，这里是Freq， 而新文件是freq[Hz]
         pairs = [f"S{i}{j}" for i in range(1, n+1) for j in range(1, n+1)]
         
         for pair in pairs:
-            angles_rad = np.deg2rad(pre_data[f"Ang{pair}"])
-            s = np.power(10, pre_data[f"DB{pair}"] / 20)
+            angles_rad = np.deg2rad(pre_data[f"ang:{pair}"]) ## 格式不同
+            s = np.power(10, pre_data[f"db:{pair}"] / 20) ## 格式不同
             data[f"re:{pair}"] = s * np.cos(angles_rad)
             data[f"im:{pair}"] = s * np.sin(angles_rad)
 
@@ -79,7 +81,7 @@ class SNP:
     ## name : smith, db, modulus, vswr. Don't worry about upper and lower case.
     ## pairs : Select which port pairs to draw. You can select multiple port pairs, for example ["S11", "S12", "S21"]
     ## limitMHZ : [minMHZ, maxMHZ], if maxMHZ > the max freq in the data, it is OK
-    def draw(self, name, pairs, limitMHZ=[0, 100000]):
+    def draw(self, name, pairs, limitMHZ=[1500, 2200]):
         data = self.data.copy()
         data = data[(data["freq[MHz]"] >= limitMHZ[0]) & (data["freq[MHz]"] <= limitMHZ[1])]
         name = name.upper()
@@ -108,7 +110,7 @@ class SNP:
 
 
 if __name__ == "__main__":
-    s2p = SNP(filepath="8.s3p", filetype="db", n=3)
+    s2p = SNP(filepath="B3_RYX_STD179518A1_V4_FP1814_Ba2_EVB_1-3_NOMATCH_20241030.s3p", filetype="db", n=3)
     # s2p = SNP(filepath=r"D:\xxx\BSL1.s2p", filetype="db", n=2) ## on windows
     # s2p.draw(name="smith", pairs=["S11"])
     # s2p.draw(name="vswr", pairs=["S11", "S22"])
